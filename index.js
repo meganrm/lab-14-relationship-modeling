@@ -1,31 +1,8 @@
 'use strict';
-const ToDo = require('./todo/model.js');
 const PORT = process.env.PORT || 8000;
-const express = require('express');
-const app = express();
-const server = require('./lib/server');
-const jsonParser = require('body-parser').json();
-const routes = require('./todo/route');
-const storageManger = require('./lib/storage');
+const DB = process.env.DB_URL || 'mongodb://localhost:27017/aics_files_dev';
 
+const mongoose = require('./lib/mongooseDB');
+mongoose.connect(DB, {useMongoClient: true});
 
-app.post('/api/todos', jsonParser, routes.post);
-
-app.get('/api/todos', routes.get);
-
-app.delete('/api/todos', routes.delete);
-
-app.use('/api/todos', (err, req, res, next) => {
-  console.log(err);
-  let status = err.status || 400;
-  let message = err.message || 'oh no server error';
-  res.status(status).send(message);
-  next();
-});
-
-storageManger.loadAll(ToDo)
-  .then(function(){
-    server.start(app, PORT)
-      .then(console.log)
-      .catch(console.log);
-  });
+require(__dirname + '/lib/server.js').listen(PORT);

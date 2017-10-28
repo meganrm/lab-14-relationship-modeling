@@ -1,11 +1,10 @@
 /*global expect*/
 
 const route = require('./route');
-const storageManger = require('../lib/storage');
-const ToDo = require('./model.js');
+const FileData = require('./model.js');
 
 
-storageManger.loadAll(ToDo)
+storageManger.loadAll(FileData);
 
 //mocks
 let Res = function(){};
@@ -23,15 +22,13 @@ Res.prototype.send = function(body) {
 let res = new Res();
 
 let next = function(error){
-  return error
-}
-
-
+  return error;
+};
 
 describe('To Do routes', () => {
   beforeAll(() => {
-    storageManger.loadAll(ToDo)
-  })
+    storageManger.loadAll(FileData);
+  });
   describe('get', () => {
     it('gets all the todos if no id passed', () => {
       let req = {};
