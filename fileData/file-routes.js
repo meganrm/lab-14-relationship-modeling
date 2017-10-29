@@ -28,6 +28,13 @@ fileRouter.post('/aics_files', jsonParser, (req, res, next) => {
     .catch(err => next(new ServerError (500, 'error creating file')));
 });
 
+fileRouter.put('/aics_files:id', jsonParser, (req, res, next) => {
+  let newFileData = new FileData(req.body);
+  FileData.findOneAndUpdate({_id: req.params.id}, req.body)
+    .then(data => res.send('success!'))
+    .catch(err => next({error: error}));
+});
+
 fileRouter.delete('/aics_files', jsonParser, (req, res, next) => {
   FileData.remove({_id: req.params.id})
     .then(data => res.send('bear successfully murdered'))

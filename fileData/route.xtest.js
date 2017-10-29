@@ -1,10 +1,8 @@
 /*global expect*/
 
-const route = require('./route');
+const route = require('./file-routes');
 const FileData = require('./model.js');
 
-
-storageManger.loadAll(FileData);
 
 //mocks
 let Res = function(){};
@@ -25,12 +23,12 @@ let next = function(error){
   return error;
 };
 
-describe('To Do routes', () => {
+describe('File Meta Data routes', () => {
   beforeAll(() => {
     storageManger.loadAll(FileData);
   });
   describe('get', () => {
-    it('gets all the todos if no id passed', () => {
+    it('gets all the filedata objects if no id passed', () => {
       let req = {};
       req.query = {};
       req.body = {};
@@ -39,7 +37,7 @@ describe('To Do routes', () => {
       expect(test.body).toEqual({});
     });
 
-    it('throws an 404 if the todo is not found', () => {
+    it('throws an 404 if the filedata is not found', () => {
       let req = {};
       req.query = {};
       req.body = {};
@@ -79,7 +77,7 @@ describe('To Do routes', () => {
 
   describe('delete', () => {
 
-    it('throws an 404 if the todo is not found', () => {
+    it('throws an 404 if the filedata is not found', () => {
 
       let req = {};
       req.query = {};
