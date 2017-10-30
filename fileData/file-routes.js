@@ -8,42 +8,57 @@ const ServerError = require('../lib/error');
 
 const fileRouter = module.exports = express.Router();
 
-fileRouter.get('/aics_files', (req, res, next) => {
+function errorCheck(err, body){
+  let error = new ServerError(404, 'id does not exist', err);
+  error.checkRequired(body);
+  return error;
+}
+
+fileRouter.get('/visual_files', (req, res, next) => {
   let findObject = req.query || {};
   FileData.find(findObject)
-    .then(files => res.send(files))
+    .then(files => res.status(200).send(files))
     .catch(err => next(new ServerError (404, 'cant find what you are looking for', err)));
 });
 
-fileRouter.get('/aics_files/:id', (req, res, next) => {
+fileRouter.get('/visual_files/:id', (req, res, next) => {
   FileData.findOne({_id : req.params.id})
-    .then(files => res.send(files))
-    .catch(err => next(new ServerError (err)));
+    .then(files => res.status(200).send(files))
+    .catch(err => next(new ServerError (404, 'cant find what you are looking for', err)));
 });
 
-fileRouter.post('/aics_files', jsonParser, (req, res, next) => {
+fileRouter.post('/visual_files', jsonParser, (req, res, next) => {
   let newFileData = new FileData(req.body);
   newFileData.save() // saves the file to the database
-    .then(data => res.send(data))
-    .catch(err => next(new ServerError (500, 'error creating file')));
+    .then(data => res.status(200).send(data))
+    .catch((err) => {
+      next(errorCheck(err, newFileData));
+    });
 });
 
-fileRouter.put('/aics_files:id', jsonParser, (req, res, next) => {
+fileRouter.patch('/visual_files/:id', jsonParser, (req, res, next) => {
   let newFileData = new FileData(req.body);
-  FileData.findOneAndUpdate({_id: req.params.id}, req.body)
-    .then(data => res.send('success!'))
-    .catch(err => next({error: error}));
+  delete newFileData._id;
+  FileData.findOneAndUpdate({_id : req.params.id}, {$set:newFileData})
+    .then(() => res.status(200).send('success!'))
+    .catch((err) => {
+      next(errorCheck(err, newFileData));
+    });
 });
 
-fileRouter.delete('/aics_files', jsonParser, (req, res, next) => {
+fileRouter.put('/visual_files/:id', jsonParser, (req, res, next) => {
+  let newFileData = new FileData(req.body);
+  FileData.findOneAndUpdate({_id: req.params.id}, newFileData)
+    .then(() => res.status(200).send('success!'))
+    .catch((err) => {
+      next(errorCheck(err, newFileData));
+    });
+});
+
+fileRouter.delete('/visual_files', jsonParser, (req, res, next) => {
   FileData.remove({_id: req.params.id})
-    .then(data => res.send('bear successfully murdered'))
-    .catch(err => next(new ServerError ()));
-});
-
-fileRouter.patch('/aics_files/:id', jsonParser, (req, res, next) => {
-  delete req.body._id;
-  FileData.findOneAndUpdate({_id : req.params.id}, {$set:req.body})
-    .then(data => res.send('success!'))
-    .catch(err => next(new ServerError ()));
+    .then(() => res.status(200).send('metadata successfully deleted'))
+    .catch((err) => {
+      next(errorCheck(err, req.body));
+    });
 });

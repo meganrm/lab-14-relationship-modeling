@@ -9,7 +9,7 @@ const fileMetaDataSchema = new mongoose.Schema({
   username : {type: String, default: 'user.name'},
   group:  {type: String, default: 'user.group'},
   path : {type: String, required: true, unique:true},
-  description : {type: String, required: true}
+  description : {type: String, required: true},
 });
 
 module.exports = mongoose.model('fileMetaData', fileMetaDataSchema); // collection, Schema, creates constructor function
