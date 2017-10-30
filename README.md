@@ -4,7 +4,7 @@
 ## Server Endpoints
 ### `/api/visual_files`
 * a resource for saving metadata about files in a file system.
-* should return an array of stored resources
+* `GET` request should return an array of stored resources
 
 * `POST` request
   * should pass data as stringifed JSON in the body of a post request to create a new resource
