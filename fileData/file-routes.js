@@ -10,7 +10,7 @@ const fileRouter = module.exports = express.Router();
 
 function errorCheck(err, body){
   let error = new ServerError(404, 'id does not exist', err);
-  error.checkRequired(body);
+  error.checkRequired('filemetadata', body);
   return error;
 }
 
