@@ -7,24 +7,30 @@ const app = require('../../lib/server');
 const FileData = require('../../fileData/model');
 
 process.env.DB_URL = 'mongodb://localhost:27017/visual_files_test';
-process.env.PORT = 8000;
+process.env.PORT = 2000;
 let server;
 const PORT =  process.env.PORT;
 const url = `localhost:${PORT}/api/v1/visual_files`;
 
 describe('visual_files API', () => {
+
   beforeAll(() => {
     const DB = process.env.DB_URL;
     mongoose.connect(DB, {useMongoClient: true});
     server = app.listen(PORT);
+  });
+
+  beforeEach(() => {
     return FileData.remove({});
   });
+
   afterAll(() => {
     FileData.remove({});
     return mongoose.connection.close(function(){
       server.close();
     });
   });
+
   describe('POST', () => {
     test('it should create file metadata', () => {
       let testdata = new FileData({name:'name', description: 'description-get', path: 'path-get'});
@@ -61,9 +67,9 @@ describe('visual_files API', () => {
         });
     });
 
-    test('it should get a single meetadata object given a valid id', () => {
+    test('it should get a single metadata object given a valid id', () => {
       let testdata = new FileData({name:'get-name', description: 'description-to-get', path: 'test-path'});
-      testdata.save()
+      return (testdata).save()
         .then((filedata) => {
           return request
             .get(`${url}/${filedata._id}`)
@@ -72,10 +78,10 @@ describe('visual_files API', () => {
               res = res.body;
               expect(res.name).toBe('get-name');
               expect(res.description).toEqual('description-to-get');
-              expect(res.path).toEqual('test-path');
             });
         });
     });
+
     test('it should respond with 404 if not an existing id', () => {
       return request
         .get(`${url}/test-id`)
@@ -88,16 +94,16 @@ describe('visual_files API', () => {
 
   describe('PUT', () => {
     test('it should update with a put', () => {
-      let testdata = new FileData({name:'put-name', description: 'description-put', path: 'path-put'});
-      let changeddata = new FileData({name:'new-put-name', description: 'description-put-new', path: 'test-path-new'});
-      testdata.save()
+      let testdata = new FileData({name:'name-put', description: 'description-put', path: 'path-put'});
+      let changeddata = {name:'new-put-name', description: 'description-put-new', path: 'test-path-new'};
+      return testdata.save()
         .then((file) => {
           return request
             .put(`${url}/${file._id}`)
             .send(changeddata)
             .then(res => {
-              res = res.body;
-              expect(res.text).toBe('success!');
+              expect(res.status).toEqual(200);
+              expect(res.text).toEqual('success!');
             });
         });
     });
@@ -115,7 +121,7 @@ describe('visual_files API', () => {
 
     test('it should respond with 400 if no body', () => {
       let testdata = new FileData({name:'put-name', description: 'description-put', path: 'path-put'});
-      testdata.save()
+      return testdata.save()
         .then((file) => {
           return request
             .put(`${url}/${file._id}`)
@@ -127,5 +133,4 @@ describe('visual_files API', () => {
         });
     });
   });
-
 });

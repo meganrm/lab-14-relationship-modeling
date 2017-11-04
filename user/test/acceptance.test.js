@@ -13,12 +13,17 @@ const url = `localhost:${PORT}/api/v1/users`;
 let server;
 
 describe('user API', () => {
+
   beforeAll(() => {
     const DB = process.env.DB_URL;
     mongoose.connect(DB, {useMongoClient: true});
     server = app.listen(PORT);
+  });
+
+  beforeEach(() => {
     return User.remove({});
   });
+
   afterAll(() => {
     User.remove({});
     return mongoose.connection.close(function(){
@@ -89,21 +94,21 @@ describe('user API', () => {
   describe('PUT', () => {
     test('it should update with a put', () => {
       let testdata = new User({name:'name', group: 'group'});
-      let changeddata = new User({name:'new-name', group: 'group'});
-      (testdata).save()
+      let changeddata = {name:'new-name', group: 'group'};
+      return (testdata).save()
         .then((file) => {
           return request
             .put(`${url}/${file._id}`)
             .send(changeddata)
             .then(res => {
-              res = res.body;
+              expect(res.status).toBe(200);
               expect(res.text).toBe('success!');
             });
         });
     });
 
     test('it should respond with 404 if not found', () => {
-      let changeddata = new User({name:'new-put-name', group: 'test-group-new'});
+      let changeddata = {name:'new-put-name', group: 'test-group-new'};
       return request
         .put(`${url}/id`)
         .send(changeddata)

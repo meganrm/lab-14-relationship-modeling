@@ -47,7 +47,8 @@ userRouter.patch('/users/:id', jsonParser, (req, res, next) => {
 });
 
 userRouter.put('/users/:id', jsonParser, (req, res, next) => {
-  let newUserData = new UserData(req.body);
+  let newUserData = new UserData(req.body).toJSON();
+  delete newUserData._id;
   UserData.findOneAndUpdate({_id: req.params.id}, newUserData)
     .then(() => res.status(200).send('success!'))
     .catch((err) => {
